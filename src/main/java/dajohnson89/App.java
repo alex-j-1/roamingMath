@@ -1,8 +1,7 @@
 package dajohnson89;
 
 /**
- * Hello world!
- *
+ * Main point of entry for the roaming-math challenge
  */
 public class App 
 {
