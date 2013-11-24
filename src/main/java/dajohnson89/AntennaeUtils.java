@@ -1,6 +1,10 @@
 package dajohnson89;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,18 +45,11 @@ public class AntennaeUtils {
         for (String token : tokens) {
             tokenStack.push(token);
 
-            //this is our stopping criterion
-            if (operatorStack.size() == 0) {
-
-            }
-
-
             if(operatorNames.contains(token)) {
                 operatorStack.push(Operator.valueOf(token.toUpperCase()));
             }
 
             //todo: Consider extracting this into a method
-            //todo: How do we deal with removing parentheses from the stack?
             if (token.equals(")")) {
                 operator = operatorStack.pop();
 
