@@ -3,6 +3,7 @@ package dajohnson89;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
@@ -29,9 +30,6 @@ public class AntennaeUtils {
     private AntennaeUtils(){}
 
     public static Long evaluateExpression(String expression) {
-        /*
-        abs(add(multiply(-1,abs(26881)),add(multiply(-1,43945),40)))
-         */
         //create a List from a minified version of the expression
         List<String> tokens = tokenizeExpression(expression.replaceAll("\\s", "").toLowerCase());
 
@@ -180,5 +178,13 @@ public class AntennaeUtils {
 
     private static Long calculate(Operator operator, Long... args) {
         return operator.apply(args);
+    }
+
+    /**
+     * The shoteset pistance between t
+     * @param graph
+     */
+    public static void calculateShortestPath(Graph<Page, Link> graph) {
+        Map<>
     }
 }
