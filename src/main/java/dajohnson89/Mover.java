@@ -15,18 +15,18 @@ public class Mover {
     private static final String GOAL = "GOAL";
     private static final String DEADEND = "DEADEND";
 
+    private Graph graph;
+    private final Set<Link> encounteredLinks = new HashSet<>();
+    private final Set<Page> encounteredPages = new HashSet<>();
+    private int cycleCount;
 
-    private Graph<Page, Link> graph;
-    Set<Link> encounteredLinks = new HashSet<>();
-    Set<Page> encounteredPages = new HashSet<>();
-
-    public Graph<Page, Link> explore(URL url) {
-        traverse(url, null);
-        Graph<Page, Link> graph = new Graph<>(encounteredLinks, encounteredPages);
-        return graph;
+    public Graph explore(URL url) {
+        traverse(url);
+        setGraph(new Graph(encounteredLinks, encounteredPages));
+        return getGraph();
     }
 
-    private void traverse(URL url, Page parent) {
+    private void traverse(URL url) {
         String path = url.getPath();
         Long sourceID = Long.parseLong(path.substring(path.lastIndexOf('/') + 1));
 
@@ -41,7 +41,6 @@ public class Mover {
                 Long destinationID = AntennaeUtils.evaluateExpression(entry);
                 Link pageLink = new Link(sourceID, destinationID);
                 page.getOutgoingList().add(pageLink);
-                page.setParent(parent);
                 if (!encounteredLinks.add(pageLink)) {
                     //debugging
                     System.out.println("cycle encountered. Not doing anything.");
@@ -54,19 +53,11 @@ public class Mover {
                         System.out.println("Malformed URL. [sourceID, destinationID] = ["+ sourceID + " " + destinationID+']');
                         e.printStackTrace();
                     }
-                    traverse(newURL, page);
+                    traverse(newURL);
                 }
             }
             encounteredPages.add(page);
         }
-    }
-
-    public void setGraph(Graph<Page, Link> graph) {
-        this.graph = graph;
-    }
-
-    public Graph<Page, Link> getGraph() {
-        return graph;
     }
 
     //todo[DJ]: Make the try/catch block a try with resources?
@@ -97,6 +88,19 @@ public class Mover {
         return page;
     }
 
+    public void setGraph(Graph graph) {
+        this.graph = graph;
+    }
 
+    public Graph getGraph() {
+        return graph;
+    }
 
+    public int getCycleCount() {
+        return cycleCount;
+    }
+
+    public void setCycleCount(int cycleCount) {
+        this.cycleCount = cycleCount;
+    }
 }

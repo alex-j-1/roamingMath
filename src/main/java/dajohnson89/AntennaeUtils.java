@@ -1,7 +1,9 @@
 package dajohnson89;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -181,10 +183,34 @@ public class AntennaeUtils {
     }
 
     /**
-     * The shoteset pistance between t
+     * The shortest distance between the start and end nodes.
      * @param graph
      */
-    public static void calculateShortestPath(Graph<Page, Link> graph) {
-        Map<>
+    public static LinkedList<Long> calculateShortestPath(Graph graph, Long startID, Long goalID) {
+        LinkedList<Long> queue = new LinkedList<>();
+        queue.offer(startID);
+        Set<Long> visited = new HashSet<>();
+        visited.add(startID);
+
+        Map<Long, Long> distances = new HashMap<>(graph.getPageSet().size());
+        for (Page page : graph.getPageSet()) {
+            distances.put(page.getNumericValue(), Long.MAX_VALUE);
+        }
+
+
+        while(!queue.isEmpty()) {
+
+            for (Link l : graph.getPageFromLong(v).getOutgoingList()) {
+                Long w = l.getDestinationID();
+                if (!visited.contains(w)) {
+                    visited.add(w);
+                    queue.offer(w);
+                }
+            }
+        }
+        String.format("No shortest path found from %s to %s", startID, goalID);
+        throw new IllegalStateException("No shortest path found.");
     }
 }
+
+//System.out.println("Found shortest path: "+ startID +' '+  queue.toString() + ' ' + goalID);

@@ -13,7 +13,7 @@ public class MoverTest {
     public void debugMover() throws Exception {
         Mover m = new Mover();
         URL starter = new URL("http://www.crunchyroll.com/tech-challenge/roaming-math/dajohnson89@gmail.com/70786");
-        Graph<Page, Link> graph =  m.explore(starter);
+        Graph graph =  m.explore(starter);
         System.out.println("Let's look at the graph.");
     }
 /*

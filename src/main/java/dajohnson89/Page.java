@@ -8,7 +8,6 @@ public class Page {
     private boolean isDeadEnd;
     private boolean isGoal;
     private Long numericValue;
-    private Page parent;
 
     private List<Link> outgoingList;
 
@@ -53,14 +52,6 @@ public class Page {
 
     public void setNumericValue(java.lang.Long numericValue) {
         this.numericValue = numericValue;
-    }
-
-    public Page getParent() {
-        return parent;
-    }
-
-    public void setParent(Page parent) {
-        this.parent = parent;
     }
 
     @Override
