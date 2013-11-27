@@ -1,6 +1,7 @@
 package dajohnson89;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -16,19 +17,17 @@ import static dajohnson89.Operator.SUBTRACT;
 import static dajohnson89.Operator.ADD;
 import static dajohnson89.Operator.MULTIPLY;
 
-
 public class AntennaeUtils {
 
-    public static final String DEADEND = "DEADEND";
-    public static final String END = "END";
     private static final Set<String> operatorNames = new HashSet<>(Operator.values().length);
-
+    private static final Pattern integerPattern = Pattern.compile("\\d+");
     static {
         for (Operator operator : Operator.values()) {
             operatorNames.add(operator.toString());
         }
     }
 
+    //don't construct me! I'm just a utils class!
     private AntennaeUtils(){}
 
     public static Long evaluateExpression(String expression) {
@@ -89,6 +88,11 @@ public class AntennaeUtils {
         return calculatedIntermediateValue;
     }
 
+    /**
+     *
+     * @param expr A String representing an arithmetic operation
+     * @return A list consisting of the significant pieces of the expression
+     */
     private static final List<String> tokenizeExpression(String expr) {
 
         List<String> tokens= new ArrayList<>();
@@ -148,11 +152,7 @@ public class AntennaeUtils {
                 case '-': {
                     numIsNeg = true;
                 }
-                //the only other valid possibility is an integer.
-                //todo[DJ]: Optimize this
-                //todo[DJ]: Consider extracting this as a method
                 default: {
-                    Pattern integerPattern = Pattern.compile("\\d+");
                     Matcher integerMatcher = integerPattern.matcher(expr.substring(i, expr.length()));
                     if (integerMatcher.find()) {
                         String rawLongToAdd = integerMatcher.group();
@@ -177,34 +177,47 @@ public class AntennaeUtils {
         }
         return tokens;
     }
-
-    private static Long calculate(Operator operator, Long... args) {
-        return operator.apply(args);
-    }
-
     /**
-     * The shortest distance between the start and end nodes.
+     * Return the (ordered) list of nodes comprising the shortest path from startID to goalID.
+     *
      * @param graph
+     * @param startID
+     * @param goalID
+     * @return
      */
     public static LinkedList<Long> calculateShortestPath(Graph graph, Long startID, Long goalID) {
+        //Map<Child, Parent> used to trace the path obtained during BFS
+        Map<Long, Long> parents = new HashMap<>(graph.getPageSet().size());
         LinkedList<Long> queue = new LinkedList<>();
-        queue.offer(startID);
         Set<Long> visited = new HashSet<>();
+
+        queue.offer(startID);
         visited.add(startID);
-
-        Map<Long, Long> distances = new HashMap<>(graph.getPageSet().size());
-        for (Page page : graph.getPageSet()) {
-            distances.put(page.getNumericValue(), Long.MAX_VALUE);
-        }
-
+        parents.put(startID,null);
 
         while(!queue.isEmpty()) {
+            Long u = queue.poll();
+            if (u.equals(goalID)) {
+                System.out.println("Goal reached");
+                LinkedList<Long> shortestPath = new LinkedList<>();
+                shortestPath.add(goalID);
+                Long parent = parents.get(goalID);
+                while(!parent.equals(startID)) {
+                    shortestPath.add(parent);
+                    parent = parents.get(parent);
+                }
+                shortestPath.add(startID);
+                Collections.reverse(shortestPath);
+                return shortestPath;
+            }
 
-            for (Link l : graph.getPageFromLong(v).getOutgoingList()) {
-                Long w = l.getDestinationID();
-                if (!visited.contains(w)) {
-                    visited.add(w);
-                    queue.offer(w);
+            for (Link l : graph.getPageFromLong(u).getOutgoingList()) {
+                Long v = l.getDestinationID();
+                if (!visited.contains(v)) {
+                    parents.put(v,u);
+                    visited.add(v);
+                    queue.offer(v);
+                    //distances.put(v, (distances.get(u)+1));
                 }
             }
         }
@@ -212,5 +225,3 @@ public class AntennaeUtils {
         throw new IllegalStateException("No shortest path found.");
     }
 }
-
-//System.out.println("Found shortest path: "+ startID +' '+  queue.toString() + ' ' + goalID);

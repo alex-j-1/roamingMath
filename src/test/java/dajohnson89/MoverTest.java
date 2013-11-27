@@ -1,10 +1,11 @@
+/*
 package dajohnson89;
 
-import org.mockito.internal.matchers.Any;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.net.URL;
+import java.util.List;
+
 @Test
 public class MoverTest {
 
@@ -15,7 +16,12 @@ public class MoverTest {
         URL starter = new URL("http://www.crunchyroll.com/tech-challenge/roaming-math/dajohnson89@gmail.com/70786");
         Graph graph =  m.explore(starter);
         System.out.println("Let's look at the graph.");
+        Page goalPage = graph.getGoalPage();
+        List<Long> shortestPath = AntennaeUtils.calculateShortestPath(graph, 70786l, goalPage.getNumericValue());
+        System.out.println("Shortest path from start to finish: " + shortestPath);
+        System.out.println("Cycles count: "+ m.getCycleCount());
     }
+*/
 /*
     private Graph<Page, Link> expectedAcyclicGraph;
     private Graph<Page, Link> expectedCyclicGrpah;
@@ -45,6 +51,8 @@ public class MoverTest {
         when(mockedMover.
 
     }
-    */
+    *//*
+
 
 }
+*/

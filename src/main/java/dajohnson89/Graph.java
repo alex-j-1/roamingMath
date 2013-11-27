@@ -7,6 +7,7 @@ public class Graph {
 
     private final Set<Link> linkSet;
     private final Set<Page> pageSet;
+    private Page goalPage = null;
 
     /**
      * For testing only. Don't use this for-realz
@@ -19,6 +20,12 @@ public class Graph {
     Graph(Set<Link> linkSet, Set<Page> pageSet) {
         this.linkSet = linkSet;
         this.pageSet = pageSet;
+
+        for (Page page : pageSet) {
+            if (page.isGoal()) {
+                goalPage = page;
+            }
+        }
     }
 
     /**
@@ -45,6 +52,10 @@ public class Graph {
 
     public Set<Page> getPageSet() {
         return pageSet;
+    }
+
+    public Page getGoalPage() {
+        return goalPage;
     }
 
     //todo[DJ]: Add more methods

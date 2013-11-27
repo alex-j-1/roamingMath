@@ -9,16 +9,6 @@ import java.net.URL;
 public class App 
 {
     public static void main(String[] args) {
-        try {
-            URL url = new URL("http://www.java2s.com/hi");
-            System.out.println("URL is " + url.toString());
-            System.out.println("authority is " + url.getAuthority());
-            System.out.println("path is " + url.getPath());
-            System.out.println("default port is " + url.getDefaultPort());
-            System.out.println("query is " + url.getQuery());
-            System.out.println("ref is " + url.getRef());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+       //Instan
     }
 }

@@ -61,9 +61,9 @@ public class Page {
 
         Page page = (Page) o;
 
-        if (!numericValue.equals(page.numericValue)) return false;
         if (isDeadEnd != page.isDeadEnd) return false;
         if (isGoal != page.isGoal) return false;
+        if (numericValue != null ? !numericValue.equals(page.numericValue) : page.numericValue != null) return false;
         if (outgoingList != null ? !outgoingList.equals(page.outgoingList) : page.outgoingList != null) return false;
 
         return true;
@@ -73,8 +73,8 @@ public class Page {
     public int hashCode() {
         int result = (isDeadEnd ? 1 : 0);
         result = 31 * result + (isGoal ? 1 : 0);
+        result = 31 * result + (numericValue != null ? numericValue.hashCode() : 0);
         result = 31 * result + (outgoingList != null ? outgoingList.hashCode() : 0);
-        result = 31 * result;
         return result;
     }
 }

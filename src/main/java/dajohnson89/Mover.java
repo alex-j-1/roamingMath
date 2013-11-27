@@ -42,8 +42,8 @@ public class Mover {
                 Link pageLink = new Link(sourceID, destinationID);
                 page.getOutgoingList().add(pageLink);
                 if (!encounteredLinks.add(pageLink)) {
-                    //debugging
                     System.out.println("cycle encountered. Not doing anything.");
+                    cycleCount++;
                 } else {
                     URL newURL = null;
                     String rawString = BASE_URL + '/' + destinationID;
@@ -98,9 +98,5 @@ public class Mover {
 
     public int getCycleCount() {
         return cycleCount;
-    }
-
-    public void setCycleCount(int cycleCount) {
-        this.cycleCount = cycleCount;
     }
 }
