@@ -1,6 +1,5 @@
 package dajohnson89;
 
-import java.util.Collections;
 import java.util.Set;
 
 public class Graph {
@@ -8,14 +7,6 @@ public class Graph {
     private final Set<Link> linkSet;
     private final Set<Page> pageSet;
     private Page goalPage = null;
-
-    /**
-     * For testing only. Don't use this for-realz
-     */
-    protected Graph() {
-        linkSet = Collections.emptySet();
-        pageSet = Collections.emptySet();
-    }
 
     Graph(Set<Link> linkSet, Set<Page> pageSet) {
         this.linkSet = linkSet;
@@ -29,7 +20,8 @@ public class Graph {
     }
 
     /**
-     * functionality to get the page from a specified Page.numericValue
+     * Functionality to get the page from a specified Page.numericValue
+     * WARNING: May return null, if no match is found.
      * @throws IllegalArgumentException if the Graph doesn't have a page with the specified numericValue
      * @param numericValue
      */
@@ -39,7 +31,7 @@ public class Graph {
                 return p;
             }
         }
-        throw new IllegalArgumentException("Couldn't find page corresponding to numericValue: "+ numericValue);
+        return null;
     }
 
     public void addEdge(Link link) {
@@ -57,6 +49,4 @@ public class Graph {
     public Page getGoalPage() {
         return goalPage;
     }
-
-    //todo[DJ]: Add more methods
 }

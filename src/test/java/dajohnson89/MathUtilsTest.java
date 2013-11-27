@@ -3,6 +3,7 @@ package dajohnson89;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -10,16 +11,10 @@ import java.util.Set;
 import static org.fest.assertions.api.Assertions.assertThat;
 
 @Test
-public class AntennaeUtilsTest {
+public class MathUtilsTest {
     private String pageExpression;
     private long expectedEvaluation;
     private LinkedList<Long> expectedShortestPath;
-    /*
-    @BeforeMethod
-    private void setUp() throws Exception {
-
-    }
-*/
 
     @BeforeClass
     public void setUp() throws Exception {
@@ -27,14 +22,14 @@ public class AntennaeUtilsTest {
         expectedEvaluation = 70786;
 
         expectedShortestPath = new LinkedList<>();
-        expectedShortestPath.add(1l);
+        expectedShortestPath.add(0l);
+        expectedShortestPath.add(3l);
         expectedShortestPath.add(4l);
-        expectedShortestPath.add(5l);
     }
 
     @Test
     public void testEvaluateExpression() throws Exception {
-        long actualEvaluation = AntennaeUtils.evaluateExpression(pageExpression);
+        long actualEvaluation = MathUtils.evaluateExpression(pageExpression);
         assertThat(actualEvaluation).isEqualTo(expectedEvaluation);
     }
 
@@ -42,13 +37,12 @@ public class AntennaeUtilsTest {
     public void testCalculateShortestPath() throws Exception {
         Graph graph = createSampleGraph();
         LinkedList<Long> actualShortestPath;
-        actualShortestPath = AntennaeUtils.calculateShortestPath(graph, 0l, 4l);
+        actualShortestPath = MathUtils.calculateShortestPath(graph, 0l, 4l);
         assertThat(actualShortestPath).hasSize(expectedShortestPath.size());
         assertThat(actualShortestPath).isEqualTo(expectedShortestPath);
     }
 
     private Graph createSampleGraph() {
-
         Page[] pages = {
                 new Page(0l),
                 new Page(1l),
@@ -70,16 +64,12 @@ public class AntennaeUtilsTest {
         pages[0].getOutgoingList().add(links[3]);
         pages[3].getOutgoingList().add(links[4]);
 
-
         Set<Page> pageSet = new HashSet<>(5);
-        for (Page page : pages) {
-            pageSet.add(page);
-        }
+        Collections.addAll(pageSet, pages);
 
         Set<Link> linkSet = new HashSet<>(links.length);
-        for (Link link : links) {
-            linkSet.add(link);
-        }
+        Collections.addAll(linkSet, links);
+
         return new Graph(linkSet, pageSet);
     }
 }

@@ -8,10 +8,8 @@ public class Page {
     private boolean isDeadEnd;
     private boolean isGoal;
     private Long numericValue;
-
     private List<Link> outgoingList;
 
-    //Used only for testing
     public Page(Long numericValue){
         this.numericValue = numericValue;
         this.outgoingList = new ArrayList<>();
@@ -22,7 +20,7 @@ public class Page {
         setOutgoingList(outgoingList);
     }
 
-        public List<Link> getOutgoingList() {
+    public List<Link> getOutgoingList() {
         return outgoingList;
     }
 
@@ -65,7 +63,6 @@ public class Page {
         if (isGoal != page.isGoal) return false;
         if (numericValue != null ? !numericValue.equals(page.numericValue) : page.numericValue != null) return false;
         if (outgoingList != null ? !outgoingList.equals(page.outgoingList) : page.outgoingList != null) return false;
-
         return true;
     }
 

@@ -12,12 +12,12 @@ import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static dajohnson89.Operator.ABS;
-import static dajohnson89.Operator.SUBTRACT;
-import static dajohnson89.Operator.ADD;
-import static dajohnson89.Operator.MULTIPLY;
+import static dajohnson89.Operator.*;
 
-public class AntennaeUtils {
+/**
+ * Various utlity methods for analyzing a graph.
+ */
+public class MathUtils {
 
     private static final Set<String> operatorNames = new HashSet<>(Operator.values().length);
     private static final Pattern integerPattern = Pattern.compile("\\d+");
@@ -28,8 +28,15 @@ public class AntennaeUtils {
     }
 
     //don't construct me! I'm just a utils class!
-    private AntennaeUtils(){}
+    private MathUtils(){}
 
+    /**
+     * Evaluate an expression using {+,-,*, abs}.
+     * Example input: abs(add(multiply(-1,abs(26881)),add(multiply(-1,43945),40)))
+     * Example output: 70786
+     * @param expression
+     * @return unsigned 64-bit integer representing the evaluated expression
+     */
     public static Long evaluateExpression(String expression) {
         //create a List from a minified version of the expression
         List<String> tokens = tokenizeExpression(expression.replaceAll("\\s", "").toLowerCase());
@@ -48,7 +55,6 @@ public class AntennaeUtils {
                 operatorStack.push(Operator.valueOf(token.toUpperCase()));
             }
 
-            //todo: Consider extracting this into a method
             if (token.equals(")")) {
                 operator = operatorStack.pop();
 
@@ -89,7 +95,7 @@ public class AntennaeUtils {
     }
 
     /**
-     *
+     * Helper method. Breaks expr into significant tokens.
      * @param expr A String representing an arithmetic operation
      * @return A list consisting of the significant pieces of the expression
      */
@@ -179,10 +185,12 @@ public class AntennaeUtils {
     }
     /**
      * Return the (ordered) list of nodes comprising the shortest path from startID to goalID.
+     * Algorithm based on http://en.wikipedia.org/wiki/Breadth-first_search ,
+     * which is probably based on CLR
      *
-     * @param graph
-     * @param startID
-     * @param goalID
+     * @param graph The graph we're searching over
+     * @param startID The starting point of the desired shortest path
+     * @param goalID The ending point of the desired shortest path
      * @return
      */
     public static LinkedList<Long> calculateShortestPath(Graph graph, Long startID, Long goalID) {
@@ -198,30 +206,40 @@ public class AntennaeUtils {
         while(!queue.isEmpty()) {
             Long u = queue.poll();
             if (u.equals(goalID)) {
-                System.out.println("Goal reached");
-                LinkedList<Long> shortestPath = new LinkedList<>();
-                shortestPath.add(goalID);
-                Long parent = parents.get(goalID);
-                while(!parent.equals(startID)) {
-                    shortestPath.add(parent);
-                    parent = parents.get(parent);
-                }
-                shortestPath.add(startID);
-                Collections.reverse(shortestPath);
-                return shortestPath;
+                return getPathList(startID, goalID, parents);
             }
 
             for (Link l : graph.getPageFromLong(u).getOutgoingList()) {
                 Long v = l.getDestinationID();
                 if (!visited.contains(v)) {
+                    //v is a successor of u. We'll need this information for reconstructing the path.
                     parents.put(v,u);
                     visited.add(v);
                     queue.offer(v);
-                    //distances.put(v, (distances.get(u)+1));
                 }
             }
         }
         String.format("No shortest path found from %s to %s", startID, goalID);
         throw new IllegalStateException("No shortest path found.");
+    }
+
+    /**
+     * Helper method to reconstruct the shortest path obtained from BFS.
+     * @param startID The starting point of BFS
+     * @param goalID  The targe node of the search
+     * @param parents A map associating every traversed node with its predecessor.
+     * @return
+     */
+    private static final LinkedList<Long> getPathList(Long startID, Long goalID, Map<Long, Long> parents) {
+        LinkedList<Long> shortestPath = new LinkedList<>();
+        shortestPath.add(goalID);
+        Long parent = parents.get(goalID);
+        while(!parent.equals(startID)) {
+            shortestPath.add(parent);
+            parent = parents.get(parent);
+        }
+        shortestPath.add(startID);
+        Collections.reverse(shortestPath);
+        return shortestPath;
     }
 }

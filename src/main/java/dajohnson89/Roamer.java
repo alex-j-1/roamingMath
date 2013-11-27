@@ -10,8 +10,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class Mover {
-    private static final String BASE_URL = "http://www.crunchyroll.com/tech-challenge/roaming-math/dajohnson89@gmail.com";
+public class Roamer {
+    public static final String BASE_URL = "http://www.crunchyroll.com/tech-challenge/roaming-math/dajohnson89@gmail.com";
     private static final String GOAL = "GOAL";
     private static final String DEADEND = "DEADEND";
 
@@ -20,29 +20,37 @@ public class Mover {
     private final Set<Page> encounteredPages = new HashSet<>();
     private int cycleCount;
 
+    /**
+     * Create a graph from the specified entry point
+     * @param url The starting point of the graph we want to explore
+     * @return The traversed graph
+     */
     public Graph explore(URL url) {
         traverse(url);
         setGraph(new Graph(encounteredLinks, encounteredPages));
         return getGraph();
     }
 
+    /**
+     * For internal use only. Traverse the graph and extract the raw data (vertices and edges)
+     * @param url The starting point of the graph we want to explore
+     */
     private void traverse(URL url) {
         String path = url.getPath();
         Long sourceID = Long.parseLong(path.substring(path.lastIndexOf('/') + 1));
 
         List<String> entries = getEntriesFromURL(url);
-        //todo[dj] be a bit more careful here?
         if (entries.contains(GOAL) || entries.contains(DEADEND)) {
             Page endPage = handleSpecialPage(entries, sourceID);
             encounteredPages.add(endPage);
         } else {
             Page page = new Page(sourceID);
             for (String entry : entries) {
-                Long destinationID = AntennaeUtils.evaluateExpression(entry);
+                Long destinationID = MathUtils.evaluateExpression(entry);
                 Link pageLink = new Link(sourceID, destinationID);
                 page.getOutgoingList().add(pageLink);
                 if (!encounteredLinks.add(pageLink)) {
-                    System.out.println("cycle encountered. Not doing anything.");
+                    System.out.println("Cycle encountered. Ignoring.");
                     cycleCount++;
                 } else {
                     URL newURL = null;
@@ -53,6 +61,7 @@ public class Mover {
                         System.out.println("Malformed URL. [sourceID, destinationID] = ["+ sourceID + " " + destinationID+']');
                         e.printStackTrace();
                     }
+                    //recursively traverse the graph.
                     traverse(newURL);
                 }
             }
@@ -60,12 +69,15 @@ public class Mover {
         }
     }
 
-    //todo[DJ]: Make the try/catch block a try with resources?
+    /**
+     * Visit the URL, and return a list of every line on the web page.
+     * @param url
+     * @return
+     */
     private final List<String> getEntriesFromURL(URL url) {
         final List<String> entries = new ArrayList<>();
-        BufferedReader br = null;
-        try  {
-            br = new BufferedReader(new InputStreamReader(url.openStream()));
+        //BufferedReader br = null;
+        try(BufferedReader br = new BufferedReader(new InputStreamReader(url.openStream())))  {
             String line;
             while ((line = br.readLine()) != null) {
                 // Process each line.
@@ -77,10 +89,19 @@ public class Mover {
         return entries;
     }
 
-    private final Page handleSpecialPage(List<String> entries, Long sourceID) {
-        Page page = new Page(sourceID);
+    /**
+     * DEADENDs and GOAL get special treatment
+     * @param entries The list of entries on the web page
+     * @param id The ID of this particular page
+     * @return
+     */
+    private final Page handleSpecialPage(List<String> entries, Long id) {
+        if(entries.size() > 1) {
+            throw new IllegalStateException("DEADENDs or GOALs should have only one entry!");
+        }
+        Page page = new Page(id);
         if(entries.contains(GOAL)) {
-            System.out.println("Goal reached at # " + sourceID);
+            System.out.println("Goal reached at #" + id);
             page.setIsGoal(true);
         } else {
             page.setIsDeadEnd(true);
@@ -88,15 +109,26 @@ public class Mover {
         return page;
     }
 
+    /**
+     * Set the graph for this Roamer.
+     * @param graph
+     */
     public void setGraph(Graph graph) {
         this.graph = graph;
     }
 
+    /**
+     * @return The graph associated with this roamer.
+     */
     public Graph getGraph() {
         return graph;
     }
 
+    /**
+     *
+     * @return The number of unique cycles in this Roamer's graph.
+     */
     public int getCycleCount() {
-        return cycleCount;
+            return cycleCount;
     }
 }

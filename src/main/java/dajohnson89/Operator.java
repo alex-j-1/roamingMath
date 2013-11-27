@@ -1,5 +1,9 @@
 package dajohnson89;
 
+/**
+ * Representing functionality needed by MathUtils to evaluate
+ * arithmetic expressions
+ */
 enum Operator {
     ADD("add") {
         public long apply(Long... args) {
