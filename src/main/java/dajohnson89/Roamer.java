@@ -18,7 +18,6 @@ public class Roamer {
     private Graph graph;
     private final Set<Link> encounteredLinks = new HashSet<>();
     private final Set<Page> encounteredPages = new HashSet<>();
-    private int cycleCount;
 
     /**
      * Create a graph from the specified entry point
@@ -40,33 +39,42 @@ public class Roamer {
         Long sourceID = Long.parseLong(path.substring(path.lastIndexOf('/') + 1));
 
         List<String> entries = getEntriesFromURL(url);
+
+        //DEADENDs and GOAL deserve special treatment. Still, add them to the graph under construction.
         if (entries.contains(GOAL) || entries.contains(DEADEND)) {
             Page endPage = handleSpecialPage(entries, sourceID);
             encounteredPages.add(endPage);
         } else {
+            //for non-special pages, recursively traverse every entry.
             Page page = new Page(sourceID);
+            //create a new (directed) link between the source page and every node in the entry set.
             for (String entry : entries) {
                 Long destinationID = MathUtils.evaluateExpression(entry);
                 Link pageLink = new Link(sourceID, destinationID);
                 page.getOutgoingList().add(pageLink);
+                //skip already-visited pages.
                 if (!encounteredLinks.add(pageLink)) {
-                    System.out.println("Cycle encountered. Ignoring.");
-                    cycleCount++;
+                    System.out.println("Roamer encountered an already-visited node. Ignoring.");
                 } else {
-                    URL newURL = null;
-                    String rawString = BASE_URL + '/' + destinationID;
-                    try {
-                        newURL = new URL(rawString);
-                    } catch (MalformedURLException e) {
-                        System.out.println("Malformed URL. [sourceID, destinationID] = ["+ sourceID + " " + destinationID+']');
-                        e.printStackTrace();
-                    }
-                    //recursively traverse the graph.
+                    URL newURL = createURL(sourceID, destinationID);
+                    //recursive step.
                     traverse(newURL);
                 }
             }
             encounteredPages.add(page);
         }
+    }
+
+    private URL createURL(Long sourceID, Long destinationID) {
+        URL newURL = null;
+        String rawString = BASE_URL + '/' + destinationID;
+        try {
+            newURL = new URL(rawString);
+        } catch (MalformedURLException e) {
+            System.out.println("Malformed URL. [sourceID, destinationID] = ["+ sourceID + " " + destinationID+']');
+            e.printStackTrace();
+        }
+        return newURL;
     }
 
     /**
@@ -122,13 +130,5 @@ public class Roamer {
      */
     public Graph getGraph() {
         return graph;
-    }
-
-    /**
-     *
-     * @return The number of unique cycles in this Roamer's graph.
-     */
-    public int getCycleCount() {
-            return cycleCount;
     }
 }

@@ -23,13 +23,17 @@ public class App
         Roamer roamer = new Roamer();
         Graph graph = roamer.explore(startURL);
 
+        Solution solution = getSolution(graph);
+        serializeAndWriteToDisk(solution);
+    }
+
+    private static Solution getSolution(Graph graph) {
         Long goalID = graph.getGoalPage().getNumericValue();
         int nodeCount = graph.getPageSet().size();
         List<Long> shortestPath = MathUtils.calculateShortestPath(graph, startID, goalID);
-        int directedCycleCount = roamer.getCycleCount();
+        int directedCycleCount = MathUtils.countCycles(graph);
 
-        Solution solution = new Solution (goalID, nodeCount, shortestPath, directedCycleCount);
-        serializeAndWriteToDisk(solution);
+        return new Solution(goalID, nodeCount, shortestPath, directedCycleCount);
     }
 
     //Encode the solution into JSON and write to disk for submission
@@ -75,6 +79,4 @@ public class App
             this.directed_cycle_count = directed_cycle_count;
         }
     }
-
-
 }

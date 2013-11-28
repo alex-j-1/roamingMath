@@ -185,15 +185,14 @@ public class MathUtils {
     }
     /**
      * Return the (ordered) list of nodes comprising the shortest path from startID to goalID.
-     * Algorithm based on http://en.wikipedia.org/wiki/Breadth-first_search ,
-     * which is probably based on CLR
+     * Implementation reference: http://en.wikipedia.org/wiki/Breadth-first_search
      *
      * @param graph The graph we're searching over
      * @param startID The starting point of the desired shortest path
      * @param goalID The ending point of the desired shortest path
      * @return
      */
-    public static LinkedList<Long> calculateShortestPath(Graph graph, Long startID, Long goalID) {
+    public static final LinkedList<Long> calculateShortestPath(Graph graph, Long startID, Long goalID) {
         //Map<Child, Parent> used to trace the path obtained during BFS
         Map<Long, Long> parents = new HashMap<>(graph.getPageSet().size());
         LinkedList<Long> queue = new LinkedList<>();
@@ -221,6 +220,84 @@ public class MathUtils {
         }
         String.format("No shortest path found from %s to %s", startID, goalID);
         throw new IllegalStateException("No shortest path found.");
+    }
+
+    /**
+     * Using DFS, Tarjan's algorithm finds all strongly connected components of a graph.
+     * Technically, an SCC could be the intersection of several simple cycles.
+     *
+     * Implementation reference:
+     * http://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm
+     * http://www.logarithmic.net/pfh-files/blog/01208083168/tarjan.py
+     *
+     * Count how many cycles are in the graph.
+     * @param graph
+     * @return The # of cycles in the graph.
+     */
+    public static final int countCycles(Graph graph) {
+
+        Integer indexCounter = 0;
+        Stack<Long> stack = new Stack<>();
+        Map<Long, Integer> lowlinks = new HashMap<>();
+        Map<Long, Integer> index = new HashMap<>();
+        Set<Set<Long>> result = new HashSet<>();
+
+        /*initialize the maps to some silly value, so we can keep track of which nodes
+         haven't been analyzed.
+         */
+        for (Page p : graph.getPageSet()) {
+            lowlinks.put(p.getNumericValue(), Integer.MAX_VALUE);
+            index.put(p.getNumericValue(), Integer.MAX_VALUE);
+        }
+        for(Page p : graph.getPageSet()) {
+            if (lowlinks.get(p.getNumericValue()).equals(Integer.MAX_VALUE))
+            tarjanAlgorithm(graph, p.getNumericValue(), indexCounter, stack, lowlinks, index, result);
+        }
+        return result.size();
+    }
+
+    /**
+     * Helper method. Based on DFS
+     * @param graph
+     * @param node
+     * @param indexCounter
+     * @param stack
+     * @param lowlinks
+     * @param index
+     * @param result
+     */
+    private static final void tarjanAlgorithm(Graph graph, Long node, Integer indexCounter, Stack<Long> stack, Map<Long, Integer> lowlinks, Map<Long, Integer> index, Set<Set<Long>> result) {
+        index.put(node, indexCounter);
+        lowlinks.put(node, indexCounter);
+        indexCounter+=1;
+        stack.push(node);
+
+        //for every successor of node,
+        for (Link l : graph.getPageFromLong(node).getOutgoingList()) {
+            Long successor = l.getDestinationID();
+            if((lowlinks.get(successor).equals(Integer.MAX_VALUE))) {
+                //successor hasn't been visited, let's recurse on it.
+                tarjanAlgorithm(graph, successor, indexCounter, stack, lowlinks, index, result);
+                lowlinks.put(node, Math.min(lowlinks.get(node), lowlinks.get(successor)));
+            } else if (stack.contains(successor)) {
+                lowlinks.put(node, Math.min(lowlinks.get(node), index.get(successor)));
+            }
+        }
+        //if we have a directed cycle, let's add it to the result set.
+        if (lowlinks.get(node).equals(index.get(node))) {
+            Set<Long> connectedComponent = new HashSet<>();
+            while (true) {
+                Long successor = stack.pop();
+                connectedComponent.add(successor);
+                if (successor.equals(node)) {
+                    break;
+                }
+            }
+            //todo: this is a hack to avoid inserting trivial cycles. Can't figure out why my code does this. :-(
+            if(connectedComponent.size() != 1) {
+                result.add(connectedComponent);
+            }
+        }
     }
 
     /**

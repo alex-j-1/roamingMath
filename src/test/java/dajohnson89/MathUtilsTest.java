@@ -42,6 +42,23 @@ public class MathUtilsTest {
         assertThat(actualShortestPath).isEqualTo(expectedShortestPath);
     }
 
+    @Test
+    public void testCountAllCycles() throws Exception {
+        Graph graph = createSampleGraph();
+
+        /*let's add a cycle from 0 to 3 to 4 to 0.
+        This actually makes the entire graph strongly connected.
+        A better test case would be nice.
+         */
+        Page page0 = graph.getPageFromLong(0l);
+        Page page4 = graph.getPageFromLong(4l);
+        page4.getOutgoingList().add(new Link(page4.getNumericValue(), page0.getNumericValue()));
+        graph.addEdge(new Link(page4.getNumericValue(), page0.getNumericValue()));
+
+        int cycleCount = MathUtils.countCycles(graph);
+        assertThat(cycleCount).isEqualTo(1);
+    }
+
     private Graph createSampleGraph() {
         Page[] pages = {
                 new Page(0l),
